@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Forex - Hassim Traider</title>
+    <style>
+        /* Styles de base */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('background-forex.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Styles pour les sections */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #555;
+        }
+
+        /* Styles pour les boutons colorés */
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        /* Tableau des trades */
+        .trade-table, .trade-table th, .trade-table td {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .trade-table th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Icônes de contact */
+        .contact-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .contact-icon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion Forex - Hassim Traider</h1>
+        
+        <!-- Lien vers le broker -->
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="btn btn-primary" onclick="window.open('https://one.exnesstrack.org/a/sfpfysgpc9')">
+                Exness - Cliquez ici pour le meilleur broker du monde
+            </button>
+        </div>
+        
+        <!-- Formulaire pour ajouter un trade -->
+        <section>
+            <h2>Ajouter un Trade</h2>
+            <form id="trade-form">
+                <label for="pair">Paire de Devises :</label>it
+                <select id="pair">
+                    <option value="EUR/USD">EUR/USD</option>
+                    <option value="USD/JPY">USD/JPY</option>
+                    <!-- Ajouter plus de paires de devises -->
+                </select><br><br>
+
+                <label for="entry-price">Prix d'Entrée :</label>
+                <input type="number" id="entry-price" step="0.0001" required><br><br>
+
+                <label for="exit-price">Prix de Sortie :</label>
+                <input type="number" id="exit-price" step="0.0001" required><br><br>
+
+                <button type="button" class="btn btn-success" onclick="addTrade()">Ajouter le Trade</button>
+            </form>
+        </section>
+
+        <!-- Tableau des trades -->
+        <section>
+            <h2>Suivi des Trades</h2>
+            <table class="trade-table">
+                <tr>
+                    <th>Date</th>
+                    <th>Paire</th>
+                    <th>Entrée</th>
+                    <th>Sortie</th>
+                    <th>Gain/Perte</th>
+                    <th>Pourcentage</th>
+                    <th>Actions</th>
+                </tr>
+                <tbody id="trade-table-body">
+                    <!-- Les trades ajoutés apparaîtront ici -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Calculateur de risque et de lot -->
+        <section>
+            <h2>Calculateur de Risque et Taille de Lot</h2>
+            <form id="risk-calculator">
+                <label for="capital">Capital Total :</label>
+                <input type="number" id="capital" required><br><br>
+
+                <label for="risk-percentage">Risque (%) :</label>
+                <input type="number" id="risk-percentage" required><br><br>
+
+                <label for="stop-loss-pips">Stop Loss (en pips) :</label>
+                <input type="number" id="stop-loss-pips" required><br><br>
+
+                <button type="button" class="btn btn-warning" onclick="calculateLotSize()">Calculer Taille de Position</button>
+            </form>
+            <p id="risk-output"></p>
+        </section>
+
+        <!-- Section des contacts avec icônes -->
+        <section class="contact-section">
+            <h2>Contactez-moi</h2>
+            <a href="https://wa.me/+22657202363" target="_blank">
+                <img src="whatsapp-icon.png" alt="WhatsApp" class="contact-icon">
+            </a>
+            <a href="https://ko-fi.com/guenecheick" target="_blank">
+                <img src="kofi-icon.png" alt="Ko-fi" class="contact-icon">
+            </a>
+        </section>
+    </div>
+
+    <script>
+        // Fonction pour ajouter un trade et sauvegarder dans localStorage
+        function addTrade() {
+            const pair = document.getElementById('pair').value;
+            const entryPrice = parseFloat(document.getElementById('entry-price').value);
+            const exitPrice = parseFloat(document.getElementById('exit-price').value);
+            const profitLoss = (exitPrice - entryPrice).toFixed(4);
+            const profitPercentage = ((profitLoss / entryPrice) * 100).toFixed(2);
+            const date = new Date().toLocaleDateString();
+
+            const trade = { date, pair, entryPrice, exitPrice, profitLoss, profitPercentage };
+            saveTrade(trade);
+
+            // Affiche le trade dans le tableau
+            displayTrade(trade);
+            document.getElementById('trade-form').reset();
+        }
+
+        // Fonction pour afficher un trade dans le tableau avec option de suppression
+        function displayTrade(trade) {
+            const tradeRow = `<tr>
+                <td>${trade.date}</td>
+                <td>${trade.pair}</td>
+                <td>${trade.entryPrice}</td>
+                <td>${trade.exitPrice}</td>
+                <td>${trade.profitLoss}</td>
+                <td>${trade.profitPercentage}%</td>
+                <td><button class="btn btn-danger" onclick="deleteTrade('${trade.date}', '${trade.pair}')">Supprimer</button></td>
+            </tr>`;
+
+            document.getElementById('trade-table-body').innerHTML += tradeRow;
+        }
+
+        // Sauvegarde un trade dans localStorage
+        function saveTrade(trade) {
+            const trades = JSON.parse(localStorage.getItem('trades')) || [];
+            trades.push(trade);
+            localStorage.setItem('trades', JSON.stringify(trades));
+        }
+
+        // Récupère et affiche les trades enregistrés
+        function loadTrades() {
+            const trades = JSON.parse(localStorage.getItem('trades')) || [];
+            trades.forEach(displayTrade);
+        }
+
+        // Supprime un trade de localStorage
+        function deleteTrade(date, pair) {
+            let trades = JSON.parse(localStorage.getItem('trades')) || [];
+            trades = trades.filter(trade => trade.date !== date || trade.pair !== pair);
+            localStorage.setItem('trades', JSON.stringify(trades));
+            document.getElementById('trade-table-body').innerHTML = '';
+            loadTrades();
+        }
+
+        // Calcul de taille de position
+        function calculateLotSize() {
+            const capital = parseFloat(document.getElementById('capital').value);
+            const riskPercentage = parseFloat(document.getElementById('risk-percentage').value);
+            const stopLossPips = parseFloat(document.getElementById('stop-loss-pips').value);
+
+            const riskAmount = (capital * riskPercentage / 100).toFixed(2);
+            const lotSize = (riskAmount / (stopLossPips * 10)).toFixed(2);
+
+            document.getElementById('risk-output').innerText = `Vous pouvez risquer ${riskAmount} avec une taille de lot de ${lotSize}.`;
+        }
+
+        // Charger les trades existants au démarrage
+                // Charger les trades existants au démarrage
+        window.onload = loadTrades;
+        </script> <
+        // Charger les trades existants au démarrage
+        window.onload = loadTrades;
+    </script>
+</body>
+</html>
